@@ -47,6 +47,10 @@ class ClockReplacer : public Replacer {
 
  private:
   // TODO(student): implement me!
+  std::vector<frame_id_t>	frame_list_;
+  std::vector<size_t>		pin_counts_;
+  // clock hand
+  frame_id_t 				clock_hand_;
 };
 
 }  // namespace bustub
