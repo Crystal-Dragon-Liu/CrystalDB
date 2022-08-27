@@ -18,6 +18,7 @@
 
 #include "buffer/buffer_pool_manager.h"
 #include "buffer/lru_replacer.h"
+#include "buffer/clock_replacer.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
@@ -57,6 +58,16 @@ class BufferPoolManagerInstance : public BufferPoolManager {
 
   /** @return pointer to all the pages in the buffer pool */
   auto GetPages() -> Page * { return pages_; }
+
+  /**
+   * @brief check the buffer pool, return false if there is no page unpinned.
+   */
+  bool CheckBufferPoolUnpinned();
+
+  /**
+   * @brief try to pick a frame_id from free_list, return false if there is no free page.
+   */
+  bool GetFrameIdFromFreeList(frame_id_t* frame_id); 
 
  protected:
   /**

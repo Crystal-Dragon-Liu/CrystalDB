@@ -11,7 +11,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "buffer/clock_replacer.h"
-#include "include/common/util/string_util.h"
+#include <iostream>
+
 namespace bustub {
 
 ClockReplacer::ClockReplacer(size_t num_pages) {
@@ -69,9 +70,11 @@ void ClockReplacer::Pin(frame_id_t frame_id) {
 void ClockReplacer::Unpin(frame_id_t frame_id) {
 		std::lock_guard<std::mutex> guard(mutex_);
 		frame_id_t temp_hand = this->clock_hand_;
-		if(!CheckFrameId(frame_id))
-				return;
+		if(!CheckFrameId()) return;
 		do{
+				if(this->frame_list_[temp_hand] == frame_id){
+						return;
+				}
 				if(this->frame_list_[temp_hand] == -1){
 						this->frame_list_[temp_hand] = frame_id;
 						this->ref_flags_[temp_hand] = true;
@@ -79,11 +82,22 @@ void ClockReplacer::Unpin(frame_id_t frame_id) {
 						return;
 				}
 				temp_hand = (++temp_hand) % this->frame_list_.size();
-		}while(temp_hand != this->clock_hand_);
+		}while(temp_hand == this->clock_hand_);
+
+
+//		for (size_t i = 0; i < this->frame_list_.size(); i++){
+//				if(this->frame_list_[i] == frame_id)
+//						return;
+//				if(this->frame_list_[i] == -1){
+//						this->frame_list_[i] = frame_id;
+//						this->ref_flags_[i]	= true;
+//						return;
+//				}
+//		}
 }
 
 bool ClockReplacer::CheckFrameId(frame_id_t frame_id){
-		for(size_t i = 0; i < this->frame_list_.size();i++){
+		for(size_t i = 0; i < this->frame_list_.size();i++{
 				if(this->frame_list_[i] == frame_id) return false;
 		}
 		return true;
@@ -103,7 +117,7 @@ auto ClockReplacer::Size() -> size_t {
 }
 
 void ClockReplacer::DisplayFrameList(){
-		std::cout << "[";
+		std::cout << "frame list : [";
 		for(size_t i = 0; i < this->frame_list_.size(); i++){
 				std::cout << this->frame_list_[i] << " ";
 		}
@@ -111,7 +125,7 @@ void ClockReplacer::DisplayFrameList(){
 }
 
 void ClockReplacer::DisplayClockHand(){
-		PRINT("clock hand index: ", this->clock_hand_);
+		std::cout << "clock hand index: " << this->clock_hand_  << std::endl;
 }
 
 }
