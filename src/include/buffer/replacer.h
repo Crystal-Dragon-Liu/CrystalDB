@@ -45,6 +45,9 @@ class Replacer {
 
   /** @return the number of elements in the replacer that can be victimized */
   virtual auto Size() -> size_t = 0;
+
+  /** @brief display frame list */
+  virtual void DisplayFrameList() {}
 };
 
 }  // namespace bustub

@@ -67,7 +67,7 @@ class ClockReplacer : public Replacer {
 
   auto Size() -> size_t override;
 
-  void DisplayFrameList();
+  virtual void DisplayFrameList() override;
 
   void DisplayClockHand();
  

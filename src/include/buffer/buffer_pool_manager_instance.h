@@ -68,6 +68,11 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    * @brief try to pick a frame_id from free_list, return false if there is no free page.
    */
   bool GetFrameIdFromFreeList(frame_id_t* frame_id); 
+  
+  /**
+   * @brief Display the page_table.
+   */
+  void DisplayPageTable();
 
  protected:
   /**
@@ -131,6 +136,22 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    * @param page_id
    */
   void ValidatePageId(page_id_t page_id) const;
+
+
+  /*
+   * @brief find a page from page_table.
+   **/
+  inline bool SearchPageId(page_id_t page_id, frame_id_t* frame_id){
+		  std::unordered_map<page_id_t, frame_id_t>::iterator iter = page_table_.find(page_id);
+		  if(iter == page_table_.end()){
+				  // no page with page_id found.
+				  return false;
+		  }
+		  else{
+				  *frame_id = iter->second; // assignment the frame_id by iterator.
+				  return true;
+		  }
+  }
 
   /** Number of pages in the buffer pool. */
   const size_t pool_size_;
