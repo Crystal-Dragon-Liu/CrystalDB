@@ -15,6 +15,11 @@
 #include "common/macros.h"
 
 namespace bustub {
+#define CHECK_BUFFER_POOL_UNPINNED \
+ if(!CheckBufferPoolUnpinned()){ \
+		  PRINT_LOG("All of the pages have been pinned!"); \
+		  return nullptr; \
+  } \
 
 BufferPoolManagerInstance::BufferPoolManagerInstance(size_t pool_size, DiskManager *disk_manager,
                                                      LogManager *log_manager)
@@ -104,6 +109,17 @@ void BufferPoolManagerInstance::DisplayPageTable(){
 		PRINT_BLUE("====================");
 }
 
+void BufferPoolManagerInstance::DisplayPagesInfo(){
+    std::lock_guard<std::mutex> guard(latch_);
+		PRINT_BLUE("==================================");
+		PRINT_BLUE("page_id     frame_id     pin count");
+    PRINT_BLUE("==================================");
+		for(auto x: page_table_){
+				PRINT_BLUE(x.first, "       ", x.second, "       ", pages_[x.second].pin_count_);
+		}
+		PRINT_BLUE("==================================");
+}
+
 auto BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) -> Page * {
   // 0.   Make sure you call AllocatePage!
   // 1.   If all the pages in the buffer pool are pinned, return nullptr.
@@ -112,10 +128,7 @@ auto BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) -> Page * {
   // 4.   Set the page ID output parameter. Return a pointer to P.
   // page_id_t page_id_temp = AllocatePage();
   std::lock_guard<std::mutex>guard(latch_);
-  if(!CheckBufferPoolUnpinned()){
-		  PRINT_LOG("All of the pages have been pinned!");
-		  return nullptr;
-  }
+  CHECK_BUFFER_POOL_UNPINNED
   *page_id = AllocatePage();
   // Firstly, search page_id_temp from free_list
   frame_id_t frame_id;
@@ -133,7 +146,11 @@ auto BufferPoolManagerInstance::NewPgImp(page_id_t *page_id) -> Page * {
   }
   // we return the Pages[frame_id];
   page_table_.insert(std::pair<page_id_t, frame_id_t>(*page_id, frame_id));
-  //TODO UPDATE the page metadata and zero out memory.
+  //UPDATE the page metadata and zero out memory.
+  //If pages_[frame] is dirty, write this page to disk.
+		if(pages_[frame_id].IsDirty()){
+			disk_manager_->WritePage(pages_[frame_id].page_id_, pages_[frame_id].GetData());
+		}
   pages_[frame_id].ResetMemory();
   pages_[frame_id].page_id_ = *page_id;
   pages_[frame_id].pin_count_ = 1;
@@ -149,6 +166,13 @@ auto BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) -> Page * {
   // 3.     Delete R from the page table and insert P.
   // 4.     Update P's metadata, read in the page content from disk, and then return a pointer to P.
   std::lock_guard<std::mutex> guard(latch_);
+  //TODO check buffer pool.
+  // if(!CheckBufferPoolUnpinned()){ 
+	// 	  PRINT_LOG("All of the pages have been pinned!"); 
+	// 	  return nullptr; 
+  // } 
+  CHECK_BUFFER_POOL_UNPINNED
+
   frame_id_t frame_id;
   if(SearchPageId(page_id, &frame_id)){
 		replacer_->Pin(frame_id);

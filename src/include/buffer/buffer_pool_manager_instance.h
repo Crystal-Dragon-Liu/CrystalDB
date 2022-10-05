@@ -74,6 +74,11 @@ class BufferPoolManagerInstance : public BufferPoolManager {
    */
   void DisplayPageTable();
 
+  /**
+   * @brief Display pages info
+   */
+  void DisplayPagesInfo();
+
  protected:
   /**
    * Fetch the requested page from the buffer pool.

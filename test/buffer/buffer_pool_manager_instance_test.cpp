@@ -87,7 +87,7 @@ TEST(BufferPoolManagerInstanceTest, DISABLED_BinaryDataTest) {
 }
 
 // NOLINTNEXTLINE
-TEST(BufferPoolManagerInstanceTest, ShitTest) {
+TEST(BufferPoolManagerInstanceTest, DISABLED_ShitTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
 
@@ -127,11 +127,13 @@ TEST(BufferPoolManagerInstanceTest, ShitTest) {
   // Scenario: We should be able to fetch the data we wrote a while ago.
   page0 = bpm->FetchPage(0);
   EXPECT_EQ(0, strcmp(page0->GetData(), "Hello"));
+  bpm->DisplayPagesInfo();
 
   // Scenario: If we unpin page 0 and then make a new page, all the buffer pages should
   // now be pinned. Fetching page 0 should fail.
   EXPECT_EQ(true, bpm->UnpinPage(0, true));
   EXPECT_NE(nullptr, bpm->NewPage(&page_id_temp));
+  bpm->DisplayPagesInfo();
   EXPECT_EQ(nullptr, bpm->FetchPage(0));
 
   // Shutdown the disk manager and remove the temporary file we created.
@@ -144,7 +146,7 @@ TEST(BufferPoolManagerInstanceTest, ShitTest) {
 
 
 // NOLINTNEXTLINE
-TEST(BufferPoolManagerInstanceTest, DISABLED_SampleTest) {
+TEST(BufferPoolManagerInstanceTest, SampleTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
 
