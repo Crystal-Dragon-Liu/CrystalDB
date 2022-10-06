@@ -17,7 +17,6 @@
 namespace bustub {
 #define CHECK_BUFFER_POOL_UNPINNED \
  if(!CheckBufferPoolUnpinned()){ \
-		  PRINT_LOG("All of the pages have been pinned!"); \
 		  return nullptr; \
   } \
 
@@ -80,7 +79,7 @@ void BufferPoolManagerInstance::FlushAllPgsImp() {
 
 bool BufferPoolManagerInstance::CheckBufferPoolUnpinned(){
 	for(size_t i = 0; i < pool_size_; i++){
-			if (pages_[i].GetPinCount() == 0) {
+			if (this->pages_[i].GetPinCount() == 0) {
 					return true;
 			}
 	}
@@ -112,10 +111,10 @@ void BufferPoolManagerInstance::DisplayPageTable(){
 void BufferPoolManagerInstance::DisplayPagesInfo(){
     std::lock_guard<std::mutex> guard(latch_);
 		PRINT_BLUE("==================================");
-		PRINT_BLUE("page_id     frame_id     pin count");
+		PRINT_YELLOW("page_id     frame_id     pin count");
     PRINT_BLUE("==================================");
 		for(auto x: page_table_){
-				PRINT_BLUE(x.first, "       ", x.second, "       ", pages_[x.second].pin_count_);
+				PRINT_YELLOW(x.first, "       ", x.second, "       ", pages_[x.second].pin_count_);
 		}
 		PRINT_BLUE("==================================");
 }
@@ -166,13 +165,6 @@ auto BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) -> Page * {
   // 3.     Delete R from the page table and insert P.
   // 4.     Update P's metadata, read in the page content from disk, and then return a pointer to P.
   std::lock_guard<std::mutex> guard(latch_);
-  //TODO check buffer pool.
-  // if(!CheckBufferPoolUnpinned()){ 
-	// 	  PRINT_LOG("All of the pages have been pinned!"); 
-	// 	  return nullptr; 
-  // } 
-  CHECK_BUFFER_POOL_UNPINNED
-
   frame_id_t frame_id;
   if(SearchPageId(page_id, &frame_id)){
 		replacer_->Pin(frame_id);
@@ -180,6 +172,7 @@ auto BufferPoolManagerInstance::FetchPgImp(page_id_t page_id) -> Page * {
 		return &pages_[frame_id]; 
   }
   else{
+		CHECK_BUFFER_POOL_UNPINNED
 		if(!GetFrameIdFromFreeList(&frame_id)){
 				replacer_->Victim(&frame_id);
 		}

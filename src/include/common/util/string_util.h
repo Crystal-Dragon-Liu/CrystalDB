@@ -18,7 +18,6 @@
 
 namespace bustub {
 
-
 #define TWO_PI 6.2831853071795864769252866
 
 #define LOG(info) log__(__FILE__, __func__, __LINE__, info)
@@ -31,7 +30,8 @@ inline void log__(std::string file_name, std::string func_name, int line, const 
 inline void print__() { std::cout << std::endl; };
 inline void printwith__() { std::cout << std::endl; };
 inline void printblue() {std::cout << std::endl;}
-
+inline void printred() {std::cout << std::endl;}
+inline void printyellow() {std::cout << std::endl;}
 /**
  * TODO change the output to a thread safe method
  * do not use cout to output with this method in concurrency environment
@@ -51,14 +51,34 @@ void printwith__(const T& firstArg, const Types&... args) {
 
 template<typename T, typename... Types>
 void printblue(const T& firstArg, const Types&... args) {
-    std::cout << " \033[34m" << firstArg << "\033[0m ";
+    std::string blue_char("34");
+    // std::cout << " \033[34m" << firstArg << "\033[0m ";
+    std::cout << "\033[" << blue_char << "m" << firstArg << "\033[0m ";
     printblue(args...);
 }
+
+template<typename T, typename... Types>
+void printred(const T& firstArg, const Types&... args) {
+    std::string blue_char("31");
+    // std::cout << " \033[34m" << firstArg << "\033[0m ";
+    std::cout << "\033[" << blue_char << "m" << firstArg << "\033[0m ";
+    printred(args...);
+}
+
+template<typename T, typename... Types>
+void printyellow(const T& firstArg, const Types&... args) {
+    std::string blue_char("33");
+    // std::cout << " \033[34m" << firstArg << "\033[0m ";
+    std::cout << "\033[" << blue_char << "m" << firstArg << "\033[0m ";
+    printyellow(args...);
+}
+
 
 #define PRINT(...) print__(__VA_ARGS__)
 #define PRINT_LOG(...) printwith__(__VA_ARGS__)
 #define PRINT_BLUE(...) printblue(__VA_ARGS__)
-
+#define PRINT_YELLOW(...) printyellow(__VA_ARGS__)
+#define PRINT_RED(...) printred(__VA_ARGS__)
 
 /**
  * StringUtil provides INEFFICIENT utility functions for working with strings. They should only be used for debugging.

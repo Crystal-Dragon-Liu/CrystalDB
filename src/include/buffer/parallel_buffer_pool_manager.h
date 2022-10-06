@@ -17,7 +17,15 @@
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
 
+
+
+
+
+
+
 namespace bustub {
+
+class BufferPoolManagerInstance;
 
 class ParallelBufferPoolManager : public BufferPoolManager {
  public:
@@ -38,6 +46,9 @@ class ParallelBufferPoolManager : public BufferPoolManager {
 
   /** @return size of the buffer pool */
   auto GetPoolSize() -> size_t override;
+
+  /** @brief display all of the page table in ParallelBufferPoolManager*/
+  auto DisplayAllPagesTable() -> void;
 
  protected:
   /**
@@ -86,5 +97,24 @@ class ParallelBufferPoolManager : public BufferPoolManager {
    * Flushes all the pages in the buffer pool to disk.
    */
   void FlushAllPgsImp() override;
+ private:
+  /**
+   * thie method could be called when we finsihed to New a page.
+   */
+  auto UpdateStartingIndex(size_t temp_index) -> void;
+
+
+ private:
+    /**  When the ParallelBufferPoolManager is first instantiated 
+     *  it should have a starting index of 0. 
+     *   Every time you create a new page you will try every BufferPoolManagerInstance, 
+     *  starting at the starting index, until one is successful.*/
+    size_t start_index_;
+    /** a vector of BufferPoolManagerInstance */
+    BufferPoolManagerInstance** bpmi_vec_;
+
+    /** the size of BufferPoolManagerInstance vector.*/
+    size_t num_instances_;
+    
 };
 }  // namespace bustub
